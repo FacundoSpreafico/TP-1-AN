@@ -14,7 +14,7 @@ BANDAS = {
     'theta': (4, 8),
     'alpha': (8, 13),
     'beta': (13, 30),
-    'gamma': (30, 50)
+    'gamma': (30, 80)
 }
 
 def cargar_senal(archivo):
@@ -76,7 +76,6 @@ def analizar_senal(archivo):
     nombre = archivo.split('.')[0]
     senal = cargar_senal(archivo)
     senal = signal.detrend(senal)  # Remover tendencia lineal
-    
     # Aplicar filtro
     senal_filtrada = aplicar_filtro(senal, FS, CUTOFF, ORDER)
     
@@ -98,6 +97,7 @@ def analizar_senal(archivo):
         'autocorrelacion': autocorr
     }
 
+
 # Análisis de todas las señales
 if __name__ == '__main__':
     resultados = {}
@@ -110,5 +110,9 @@ if __name__ == '__main__':
         ax.plot(datos['autocorrelacion'][:200], label=archivo)
     ax.set_title('Comparación de autocorrelaciones')
     ax.legend()
+
     plt.savefig('comparacion_autocorrelaciones.png')
+
+
+
     plt.close()
