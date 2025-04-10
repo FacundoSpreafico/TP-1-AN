@@ -13,7 +13,7 @@ from funciones_eeg import (
     cargar_senales, filtrar_senal, graficar_comparacion_tiempo,
     analizar_distribucion_bandas, calcular_espectro_frecuencias,
     graficar_espectro_frecuencias, calcular_potencia_bandas,
-    graficar_comparacion_potencias, calcular_autocorrelacion,
+    graficar_comparacion_potencias,  graficar_senal_y_transformada, calcular_autocorrelacion,
     graficar_autocorrelaciones, graficar_senales_tiempo
 )
 # =============================================
@@ -31,35 +31,42 @@ def analisis_completo_eeg():
 
     # Graficar comparación original vs filtrado
     print("\nComparación señales originales vs filtradas...")
-    graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
-    graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
-    graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
+    # graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
+    # graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
+    # graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
+    graficar_senal_y_transformada(senal_sana_f, 'Senal Sana filtrada')
+    graficar_senal_y_transformada(senal_interictal_f, 'Senal Interictal filtrada')
+    graficar_senal_y_transformada(senal_convulsion_f, 'Senal Convulsion filtrada')
 
     # 2. Análisis espectral
-    print("\nAnalizando distribución espectral...")
-    espectros = {
-        'Sana': (senal_sana_f, 'Señal Sana'),
-        'Interictal': (senal_interictal_f, 'Señal Interictal'),
-        'Convulsion': (senal_convulsion_f, 'Señal Convulsión')
-    }
-    
-    for clave, (senal, nombre) in espectros.items():
-        xf, yf = calcular_espectro_frecuencias(senal)
-        print(f"\n==== Análisis detallado - {nombre} ====")
-        analizar_distribucion_bandas(xf, yf)
-        graficar_espectro_frecuencias(xf, yf, nombre)
+    # print("\nAnalizando distribución espectral...")
+    # espectros = {
+    #     'Sana': (senal_sana_f, 'Señal Sana'),
+    #     'Interictal': (senal_interictal_f, 'Señal Interictal'),
+    #     'Convulsion': (senal_convulsion_f, 'Señal Convulsión')
+    # }
+    #
+    # for clave, (senal, nombre) in espectros.items():
+    #     xf, yf = calcular_espectro_frecuencias(senal)
+    #     print(f"\n==== Análisis detallado - {nombre} ====")
+    #     analizar_distribucion_bandas(xf, yf)
+    #     graficar_espectro_frecuencias(xf, yf, nombre)
 
-    # # 3. Potencia por bandas (opcional)
-    # print("\nCalculando potencia por bandas espectrales...")
-    # xf_sana, yf_sana = calcular_espectro_frecuencias(senal_sana_f)
-    # xf_inter, yf_inter = calcular_espectro_frecuencias(senal_interictal_f)
-    # xf_conv, yf_conv = calcular_espectro_frecuencias(senal_convulsion_f)
+
+
+    # 3. Potencia por bandas (opcional)
+    print("\nCalculando potencia por bandas espectrales...")
+    xf_sana, yf_sana = calcular_espectro_frecuencias(senal_sana_f)
+    xf_inter, yf_inter = calcular_espectro_frecuencias(senal_interictal_f)
+    xf_conv, yf_conv = calcular_espectro_frecuencias(senal_convulsion_f)
     
-    # potencias_sana = calcular_potencia_bandas(xf_sana, yf_sana)
-    # potencias_inter = calcular_potencia_bandas(xf_inter, yf_inter)
-    # potencias_conv = calcular_potencia_bandas(xf_conv, yf_conv)
-    
-    # graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
+    potencias_sana = calcular_potencia_bandas(xf_sana, yf_sana)
+    potencias_inter = calcular_potencia_bandas(xf_inter, yf_inter)
+    potencias_conv = calcular_potencia_bandas(xf_conv, yf_conv)
+
+    graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
+
+
 
     # # 4. Autocorrelación (opcional)
     # print("\nCalculando autocorrelaciones...")

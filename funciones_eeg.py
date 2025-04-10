@@ -39,6 +39,34 @@ def filtrar_senal(senal, frecuencia_corte=FRECUENCIA_CORTE, frecuencia_muestreo=
 # =============================================
 # 2. Análisis en el dominio del tiempo
 # =============================================
+def graficar_senal_y_transformada(senal, titulo):
+        """Grafica la señal en el dominio del tiempo y su transformada de Fourier"""
+        # Calcular transformada de Fourier
+        fs = FRECUENCIA_MUESTREO
+        xf, yf = calcular_espectro_frecuencias(senal, fs)
+
+        # Crear subgráficos
+        fig, axs = plt.subplots(2, 1, figsize=(12, 8))
+
+        # Señal en el dominio del tiempo
+        tiempo = np.arange(len(senal)) / fs
+        axs[0].plot(tiempo, senal, color='blue')
+        axs[0].set_title(f'{titulo} - Dominio del Tiempo')
+        axs[0].set_xlabel('Tiempo (s)')
+        axs[0].set_ylabel('Amplitud (μV)')
+        axs[0].grid(True)
+
+        # Transformada de Fourier
+        axs[1].plot(xf, yf, color='orange')
+        axs[1].set_title(f'{titulo} - Espectro de Frecuencia')
+        axs[1].set_xlabel('Frecuencia (Hz)')
+        axs[1].set_ylabel('Amplitud Normalizada')
+        axs[1].set_xlim(0, 50)  # Limitar a 50 Hz para señales EEG
+        axs[1].grid(True)
+
+        # Ajustar diseño
+        plt.tight_layout()
+        plt.show()
 
 def graficar_senales_tiempo(senal_sana, senal_interictal, senal_convulsion, fs=FRECUENCIA_MUESTREO):
     """Visualización comparativa de las señales en tiempo"""
@@ -97,6 +125,7 @@ def analizar_distribucion_bandas(frecuencias, amplitud):
     print(f"Beta/Alpha: {caracteristicas['ratio_beta_alpha']:.2f}")
     print(f"Gamma/Alpha: {caracteristicas['ratio_gamma_alpha']:.2f}")
 
+
 # =============================================
 # 3. Análisis en el dominio de la frecuencia
 # =============================================
@@ -108,7 +137,7 @@ def calcular_espectro_frecuencias(senal, fs=FRECUENCIA_MUESTREO):
     xf = fftfreq(n, 1/fs)[:n//2]
     return xf, 2/n * np.abs(yf[0:n//2])
 
-def graficar_espectro_frecuencias(xf, yf, titulo, limite_superior=50):
+def graficar_espectro_frecuencias(xf, yf, titulo, limite_superior=LIMITE_FRECUENCIAS):
     """Visualización del espectro de frecuencias"""
     plt.figure()
     plt.plot(xf, yf)
@@ -132,9 +161,16 @@ def calcular_potencia_bandas(xf, yf):
         'Beta (13-30 Hz)': (13, 30),
         'Gamma (30-40 Hz)': (30, 40)
     }
+    #
+    # return {nombre: np.trapezoid(yf[(xf >= fmin) & (xf <= fmax)], xf[(xf >= fmin) & (xf <= fmax)])
+    #         for nombre, (fmin, fmax) in bandas.items()}
+    potencias = {}
+    total = np.trapezoid(yf, xf)  # Potencia total
 
-    return {nombre: np.trapz(yf[(xf >= fmin) & (xf <= fmax)], xf[(xf >= fmin) & (xf <= fmax)])
-            for nombre, (fmin, fmax) in bandas.items()}
+    for nombre, (fmin, fmax) in bandas.items():
+        potencia = np.trapezoid(yf[(xf >= fmin) & (xf <= fmax)], xf[(xf >= fmin) & (xf <= fmax)])
+        potencias[nombre] = (potencia / total)
+    return potencias
 
 def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potencias_convulsion):
     """Comparación visual de potencias por bandas"""
@@ -142,18 +178,37 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
     x = np.arange(len(nombres_bandas))
     ancho = 0.25
 
-    plt.figure(figsize=(12,6))
-    plt.bar(x - ancho, potencias_sana.values(), ancho, label='Sana')
-    plt.bar(x, potencias_interictal.values(), ancho, label='Interictal')
-    plt.bar(x + ancho, potencias_convulsion.values(), ancho, label='Convulsión')
+    # Imprimir valores de potencia
+    print("\nPotencias por bandas:")
+    print("Sana:")
+    for banda, potencia in potencias_sana.items():
+        print(f"  {banda}: {potencia:.4f}")
+    print("Interictal:")
+    for banda, potencia in potencias_interictal.items():
+        print(f"  {banda}: {potencia:.4f}")
+    print("Convulsión:")
+    for banda, potencia in potencias_convulsion.items():
+        print(f"  {banda}: {potencia:.4f}")
+
+    # Graficar potencias
+    plt.figure(figsize=(12, 6))
+    barras_sana = plt.bar(x - ancho, potencias_sana.values(), ancho, label='Sana')
+    barras_inter = plt.bar(x, potencias_interictal.values(), ancho, label='Interictal')
+    barras_conv = plt.bar(x + ancho, potencias_convulsion.values(), ancho, label='Convulsión')
+
+    # Agregar valores encima de las barras
+    for barras in [barras_sana, barras_inter, barras_conv]:
+        for barra in barras:
+            altura = barra.get_height()
+            plt.text(barra.get_x() + barra.get_width() / 2, altura, f'{altura:.2f}',
+                     ha='center', va='bottom', fontsize=10)
 
     plt.xticks(x, nombres_bandas, rotation=45)
-    plt.ylabel('Potencia espectral')
+    plt.ylabel('Potencia espectral (uV)')
     plt.title('Distribución de potencia por bandas de frecuencia')
     plt.legend()
     plt.tight_layout()
     plt.show()
-
 # =============================================
 # 5. Análisis de autocorrelación
 # =============================================
