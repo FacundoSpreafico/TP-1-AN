@@ -1,19 +1,19 @@
-# Importación de todas las bibliotecas necesarias
+# funciones_eeg.py
+
+# Importación de bibliotecas necesarias
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
 from scipy.fft import fft, fftfreq
-
 from ComparacionSignal import extraer_caracteristicas
 
-# Configuración general de visualización
-plt.rcParams['figure.figsize'] = [12, 8]
-plt.rcParams['font.size'] = 12
-
-# Variables globales
-FRECUENCIA_CORTE = 15  # Frecuencia de corte para el filtro pasa bajos
-FRECUENCIA_MUESTREO = 173.61 # Frecuencia de muestreo en Hz
-
+from env import (
+    FRECUENCIA_CORTE,
+    FRECUENCIA_MUESTREO,
+    BANDAS_EEG,
+    LIMITE_FRECUENCIAS,
+    MAX_RETARDO
+)
 # =============================================
 # 0. Carga de señales EEG
 # =============================================
@@ -26,10 +26,10 @@ def cargar_senales():
     return senal_sana, senal_interictal, senal_convulsion
 
 # =============================================
-# 1. Filtro de pasa bajos para eliminar el ruido. Se utiliza frecuencia de corte 20 Hz
+# 1. Filtro de pasa bajos para eliminar el ruido
 # =============================================
 
-def filtrar_senal(senal, frecuencia_corte= FRECUENCIA_CORTE, frecuencia_muestreo= FRECUENCIA_MUESTREO, orden_filtro=4):
+def filtrar_senal(senal, frecuencia_corte=FRECUENCIA_CORTE, frecuencia_muestreo=FRECUENCIA_MUESTREO, orden_filtro=4):
     """Aplica filtro pasa bajos a la señal EEG"""
     nyquist = 0.5 * frecuencia_muestreo
     frecuencia_normalizada = frecuencia_corte / nyquist
@@ -40,7 +40,7 @@ def filtrar_senal(senal, frecuencia_corte= FRECUENCIA_CORTE, frecuencia_muestreo
 # 2. Análisis en el dominio del tiempo
 # =============================================
 
-def graficar_senales_tiempo(senal_sana, senal_interictal, senal_convulsion, fs = FRECUENCIA_MUESTREO):
+def graficar_senales_tiempo(senal_sana, senal_interictal, senal_convulsion, fs=FRECUENCIA_MUESTREO):
     """Visualización comparativa de las señales en tiempo"""
     tiempo = lambda s: np.arange(len(s)) / fs
 
@@ -62,25 +62,17 @@ def graficar_senales_tiempo(senal_sana, senal_interictal, senal_convulsion, fs =
     plt.tight_layout()
     plt.show()
 
-
 def analizar_distribucion_bandas(frecuencias, amplitud):
     """
     Muestra el porcentaje de contribución de todas las bandas espectrales
-
-    Parámetros:
-        frecuencias (array): Vector de frecuencias del espectro
-        amplitud (array): Vector de amplitudes del espectro
     """
-    # Calcular características espectrales
     caracteristicas = extraer_caracteristicas(frecuencias, amplitud)
 
-    # Calcular porcentajes
     total = caracteristicas['potencia_total']
     if total == 0:
         print("La potencia total es cero - no se pueden calcular porcentajes")
         return
 
-    # Diccionario de bandas con nombres formales
     bandas = {
         'delta': 'Delta (0.5-4 Hz)',
         'theta': 'Theta (4-8 Hz)',
@@ -89,21 +81,17 @@ def analizar_distribucion_bandas(frecuencias, amplitud):
         'gamma': 'Gamma (30-40 Hz)'
     }
 
-    # Calcular y ordenar porcentajes
     porcentajes = []
     for banda in bandas:
         porcentaje = (caracteristicas[banda] / total) * 100
         porcentajes.append((bandas[banda], porcentaje))
 
-    # Ordenar por porcentaje descendente
     porcentajes.sort(key=lambda x: x[1], reverse=True)
 
-    # Mostrar resultados
     print("\nDistribución de potencia por bandas:")
     for nombre, porcentaje in porcentajes:
         print(f"- {nombre}: {porcentaje:.2f}%")
 
-    # Mostrar ratios adicionales
     print("\nRatios importantes:")
     print(f"Alpha/Theta: {caracteristicas['ratio_alpha_theta']:.2f}")
     print(f"Beta/Alpha: {caracteristicas['ratio_beta_alpha']:.2f}")
@@ -113,7 +101,7 @@ def analizar_distribucion_bandas(frecuencias, amplitud):
 # 3. Análisis en el dominio de la frecuencia
 # =============================================
 
-def calcular_espectro_frecuencias(senal, fs=173.61):
+def calcular_espectro_frecuencias(senal, fs=FRECUENCIA_MUESTREO):
     """Calcula la transformada de Fourier de la señal"""
     n = len(senal)
     yf = fft(senal)
@@ -145,8 +133,7 @@ def calcular_potencia_bandas(xf, yf):
         'Gamma (30-40 Hz)': (30, 40)
     }
 
-    return {nombre: np.trapz(yf[(xf >= fmin) & (xf <= fmax)],
-                            xf[(xf >= fmin) & (xf <= fmax)])
+    return {nombre: np.trapz(yf[(xf >= fmin) & (xf <= fmax)], xf[(xf >= fmin) & (xf <= fmax)])
             for nombre, (fmin, fmax) in bandas.items()}
 
 def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potencias_convulsion):
@@ -194,10 +181,10 @@ def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_conv
     plt.show()
 
 # =============================================
-# Función principal de análisis
+# Función auxiliar para comparación en tiempo
 # =============================================
 
-def graficar_comparacion_tiempo(senal_original, senal_filtrada, titulo, fs=173.61):
+def graficar_comparacion_tiempo(senal_original, senal_filtrada, titulo, fs=FRECUENCIA_MUESTREO):
     """Grafica señal original y filtrada superpuestas"""
     tiempo = np.arange(len(senal_original)) / fs
 
@@ -211,58 +198,3 @@ def graficar_comparacion_tiempo(senal_original, senal_filtrada, titulo, fs=173.6
     plt.legend()
     plt.grid(True)
     plt.show()
-
-
-def analisis_completo_eeg():
-    # 1. Carga y filtrado de señales
-    
-    # CARGA DE SEÑALES
-    senal_sana, senal_interictal, senal_convulsion = cargar_senales()
-
-    # FILTRO PASA BAJOS CON CORTE = 15 HZ
-    senal_sana_f = filtrar_senal(senal_sana)
-    senal_interictal_f = filtrar_senal(senal_interictal)
-    senal_convulsion_f = filtrar_senal(senal_convulsion)
-
-    #GRAFICA DE SEÑALES ORIGINALES Y FILTRADAS
-    print("\nComparación señales originales vs filtradas...")
-    graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
-    graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
-    graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
-    
-    # 2. Aplicar la transformada de Fourier a cada una de las senales
-    print("\nAnalizando distribución espectral...")
-    espectros = {
-         'Sana': (senal_sana_f, 'Señal Sana'),
-         'Interictal': (senal_interictal_f, 'Señal Interictal'),
-         'Convulsion': (senal_convulsion_f, 'Señal Convulsión')
-     }
-    
-    for clave, (senal, nombre) in espectros.items():
-         xf, yf = calcular_espectro_frecuencias(senal)
-         print(f"\n==== Análisis detallado - {nombre} ====")
-         analizar_distribucion_bandas(xf, yf)
-         graficar_espectro_frecuencias(xf, yf, nombre)
-
-
-# # 4. Potencia por bandas
-    # print("\nCalculando potencia por bandas espectrales...")
-    # potencias_sana = calcular_potencia_bandas(xf_sana, yf_sana)
-    # potencias_inter = calcular_potencia_bandas(xf_inter, yf_inter)
-    # potencias_conv = calcular_potencia_bandas(xf_conv, yf_conv)
-    #
-    # graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
-    #
-    # # 5. Autocorrelación
-    # print("\nCalculando autocorrelaciones...")
-    # autocorr_sana = calcular_autocorrelacion(senal_sana_f)
-    # autocorr_inter = calcular_autocorrelacion(senal_interictal_f)
-    # autocorr_conv = calcular_autocorrelacion(senal_convulsion_f)
-    #
-    # graficar_autocorrelaciones(autocorr_sana, autocorr_inter, autocorr_conv)
-    #
-    # print("\nAnálisis completado.")
-
-# Ejecución del análisis completo
-if __name__ == "__main__":
-    analisis_completo_eeg()
