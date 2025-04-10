@@ -215,45 +215,34 @@ def graficar_comparacion_tiempo(senal_original, senal_filtrada, titulo, fs=173.6
 
 def analisis_completo_eeg():
     # 1. Carga y filtrado de señales
-    print("Cargando y filtrando señales EEG...")
+    
+    # CARGA DE SEÑALES
     senal_sana, senal_interictal, senal_convulsion = cargar_senales()
 
+    # FILTRO PASA BAJOS CON CORTE = 15 HZ
     senal_sana_f = filtrar_senal(senal_sana)
     senal_interictal_f = filtrar_senal(senal_interictal)
     senal_convulsion_f = filtrar_senal(senal_convulsion)
 
-    # 2. Análisis en dominio del tiempo
+    #GRAFICA DE SEÑALES ORIGINALES Y FILTRADAS
     print("\nComparación señales originales vs filtradas...")
     graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
     graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
     graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
-
-    senal_sana_tfd = calcular_espectro_frecuencias(senal_sana, FRECUENCIA_MUESTREO);
-    senal_interictal_tfd = calcular_espectro_frecuencias(senal_interictal, FRECUENCIA_MUESTREO);
-    senal_convulsion_tfd = calcular_espectro_frecuencias(senal_convulsion, FRECUENCIA_MUESTREO);
-
-    # 2. Calcular TFD
-    print("\nCalculando espectros de frecuencia...")
-    xf_sana, yf_sana = calcular_espectro_frecuencias(senal_sana_f)
-    xf_inter, yf_inter = calcular_espectro_frecuencias(senal_interictal_f)
-    xf_conv, yf_conv = calcular_espectro_frecuencias(senal_convulsion_f)
-
-    graficar_espectro_frecuencias(xf_sana, yf_sana, 'Señal Sana')
-    graficar_espectro_frecuencias(xf_inter, yf_inter, 'Señal Interictal')
-    graficar_espectro_frecuencias(xf_conv, yf_conv, 'Señal Convulsión')
-    #
-    # print("\nAnalizando distribución espectral...")
-    # espectros = {
-    #     'Sana': (senal_sana_f, 'Señal Sana'),
-    #     'Interictal': (senal_interictal_f, 'Señal Interictal'),
-    #     'Convulsion': (senal_convulsion_f, 'Señal Convulsión')
-    # }
-    #
-    # for clave, (senal, nombre) in espectros.items():
-    #     xf, yf = calcular_espectro_frecuencias(senal)
-    #     print(f"\n==== Análisis detallado - {nombre} ====")
-    #     analizar_distribucion_bandas(xf, yf)
-    #     graficar_espectro_frecuencias(xf, yf, nombre)
+    
+    # 2. Aplicar la transformada de Fourier a cada una de las senales
+    print("\nAnalizando distribución espectral...")
+    espectros = {
+         'Sana': (senal_sana_f, 'Señal Sana'),
+         'Interictal': (senal_interictal_f, 'Señal Interictal'),
+         'Convulsion': (senal_convulsion_f, 'Señal Convulsión')
+     }
+    
+    for clave, (senal, nombre) in espectros.items():
+         xf, yf = calcular_espectro_frecuencias(senal)
+         print(f"\n==== Análisis detallado - {nombre} ====")
+         analizar_distribucion_bandas(xf, yf)
+         graficar_espectro_frecuencias(xf, yf, nombre)
 
 
 # # 4. Potencia por bandas
