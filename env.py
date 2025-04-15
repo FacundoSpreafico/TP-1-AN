@@ -3,8 +3,8 @@
 # =============================================
 # Configuración de parámetros de procesamiento
 # =============================================
-FRECUENCIA_CORTE = 20      # Frecuencia de corte para filtro pasa bajos (Hz)
-FRECUENCIA_MUESTREO = 173.61    # Frecuencia de muestreo de las señales (Hz)
+FRECUENCIA_CORTE = 20     # Frecuencia de corte para filtro pasa bajos (Hz)
+FRECUENCIA_MUESTREO = 210   # Frecuencia de muestreo de las señales (Hz)
 
 # =============================================
 # Configuración de visualización
@@ -26,3 +26,4 @@ BANDAS_EEG = {
 
 LIMITE_FRECUENCIAS = 30  # Límite superior para gráficos de frecuencia (Hz)
 MAX_RETARDO = 1000       # Máximo retardo para autocorrelación (muestras)
+

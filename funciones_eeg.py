@@ -19,7 +19,6 @@ from env import (
 # =============================================
 
 def cargar_senales():
-    """Carga las tres señales de EEG desde archivos de texto"""
     senal_sana = np.loadtxt('Signal_1.txt')
     senal_interictal = np.loadtxt('Signal_2.txt')
     senal_convulsion = np.loadtxt('Signal_3.txt')
@@ -30,7 +29,6 @@ def cargar_senales():
 # =============================================
 
 def filtrar_senal(senal, frecuencia_corte=FRECUENCIA_CORTE, frecuencia_muestreo=FRECUENCIA_MUESTREO, orden_filtro=4):
-    """Aplica filtro pasa bajos a la señal EEG"""
     nyquist = 0.5 * frecuencia_muestreo
     frecuencia_normalizada = frecuencia_corte / nyquist
     b, a = signal.butter(orden_filtro, frecuencia_normalizada, btype='low')
@@ -39,34 +37,36 @@ def filtrar_senal(senal, frecuencia_corte=FRECUENCIA_CORTE, frecuencia_muestreo=
 # =============================================
 # 2. Análisis en el dominio del tiempo
 # =============================================
-def graficar_senal_y_transformada(senal, titulo):
-        """Grafica la señal en el dominio del tiempo y su transformada de Fourier"""
-        # Calcular transformada de Fourier
-        fs = FRECUENCIA_MUESTREO
-        xf, yf = calcular_espectro_frecuencias(senal, fs)
+def graficar_senal_original_y_filtrada_con_transformada(senal_original, senal_filtrada, titulo):
+    """Grafica la señal original y filtrada juntas en el dominio del tiempo y la transformada de Fourier de la señal original"""
+    # Calcular transformada de Fourier de la señal original
+    fs = FRECUENCIA_MUESTREO
+    xf, yf = calcular_espectro_frecuencias(senal_filtrada, fs)
 
-        # Crear subgráficos
-        fig, axs = plt.subplots(2, 1, figsize=(12, 8))
+    # Crear subgráficos
+    fig, axs = plt.subplots(2, 1, figsize=(12, 8))
 
-        # Señal en el dominio del tiempo
-        tiempo = np.arange(len(senal)) / fs
-        axs[0].plot(tiempo, senal, color='blue')
-        axs[0].set_title(f'{titulo} - Dominio del Tiempo')
-        axs[0].set_xlabel('Tiempo (s)')
-        axs[0].set_ylabel('Amplitud (μV)')
-        axs[0].grid(True)
+    # Señal original y filtrada en el dominio del tiempo
+    tiempo = np.arange(len(senal_original)) / fs
+    axs[0].plot(tiempo, senal_original, color='blue', label='Original', alpha=0.8)
+    axs[0].plot(tiempo, senal_filtrada, color='orange', label='Filtrada', alpha=0.8)
+    axs[0].set_title(f'{titulo} - Dominio del Tiempo')
+    axs[0].set_xlabel('Tiempo (s)')
+    axs[0].set_ylabel('Amplitud (μV)')
+    axs[0].legend()
+    axs[0].grid(True)
 
-        # Transformada de Fourier
-        axs[1].plot(xf, yf, color='orange')
-        axs[1].set_title(f'{titulo} - Espectro de Frecuencia')
-        axs[1].set_xlabel('Frecuencia (Hz)')
-        axs[1].set_ylabel('Amplitud Normalizada')
-        axs[1].set_xlim(0, 50)  # Limitar a 50 Hz para señales EEG
-        axs[1].grid(True)
+    # Transformada de Fourier de la señal original
+    axs[1].plot(xf, yf, color='blue')
+    axs[1].set_title(f'{titulo} - Espectro de Frecuencia (Señal Original)')
+    axs[1].set_xlabel('Frecuencia (Hz)')
+    axs[1].set_ylabel('Amplitud Normalizada')
+    axs[1].set_xlim(0, 50)  # Limitar a 50 Hz para señales EEG
+    axs[1].grid(True)
 
-        # Ajustar diseño
-        plt.tight_layout()
-        plt.show()
+    # Ajustar diseño
+    plt.tight_layout()
+    plt.show()
 
 def graficar_senales_tiempo(senal_sana, senal_interictal, senal_convulsion, fs=FRECUENCIA_MUESTREO):
     """Visualización comparativa de las señales en tiempo"""
@@ -127,7 +127,7 @@ def analizar_distribucion_bandas(frecuencias, amplitud):
 
 
 # =============================================
-# 3. Análisis en el dominio de la frecuencia
+# . Análisis en el dominio de la frecuencia
 # =============================================
 
 def calcular_espectro_frecuencias(senal, fs=FRECUENCIA_MUESTREO):
