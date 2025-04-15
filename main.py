@@ -10,10 +10,9 @@ from env import VISUAL_CONFIG
 plt.rcParams.update(VISUAL_CONFIG)
 
 from funciones_eeg import (
-    cargar_senales, filtrar_senal, graficar_comparacion_tiempo,
-    analizar_distribucion_bandas, calcular_espectro_frecuencias,
-    graficar_espectro_frecuencias, calcular_potencia_bandas,
-    graficar_comparacion_potencias,
+    cargar_senales, filtrar_senal,
+    calcular_autocorrelacion, graficar_autocorrelaciones,
+    calcular_autocorrelacion_libreria,
     graficar_senal_original_y_filtrada_con_transformada
 )
 # =============================================
@@ -34,9 +33,11 @@ def analisis_completo_eeg():
     # graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
     # graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
     # graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
-    graficar_senal_original_y_filtrada_con_transformada(senal_sana, senal_sana_f, 'Senal Sana filtrada')
-    graficar_senal_original_y_filtrada_con_transformada(senal_interictal, senal_interictal_f, 'Senal Interictal filtrada')
-    graficar_senal_original_y_filtrada_con_transformada(senal_convulsion, senal_convulsion_f, 'Senal Convulsion filtrada')
+
+
+    # graficar_senal_original_y_filtrada_con_transformada(senal_sana, senal_sana_f, 'Senal Sana filtrada')
+    # graficar_senal_original_y_filtrada_con_transformada(senal_interictal, senal_interictal_f, 'Senal Interictal filtrada')
+    # graficar_senal_original_y_filtrada_con_transformada(senal_convulsion, senal_convulsion_f, 'Senal Convulsion filtrada')
     
     # 2. Análisis espectral
     # print("\nAnalizando distribución espectral...")
@@ -64,15 +65,20 @@ def analisis_completo_eeg():
 
     # graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
 
-    # # 4. Autocorrelación (opcional)
-    # print("\nCalculando autocorrelaciones...")
-    # autocorr_sana = calcular_autocorrelacion(senal_sana_f)
-    # autocorr_inter = calcular_autocorrelacion(senal_interictal_f)
-    # autocorr_conv = calcular_autocorrelacion(senal_convulsion_f)
-    
-    # graficar_autocorrelaciones(autocorr_sana, autocorr_inter, autocorr_conv)
+    # 4. Autocorrelación (opcional)
+    print("\nCalculando autocorrelaciones...")
+    autocorr_sana = calcular_autocorrelacion(senal_sana)
+    autocorr_inter = calcular_autocorrelacion(senal_interictal)
+    autocorr_conv = calcular_autocorrelacion(senal_convulsion)
 
-    # print("\nAnálisis completado.")
+    autocorr_sana_alt = calcular_autocorrelacion_libreria(senal_sana)
+    autocorr_inter_alt = calcular_autocorrelacion_libreria(senal_interictal)
+    autocorr_conv_alt = calcular_autocorrelacion_libreria(senal_convulsion)
+    #
+    graficar_autocorrelaciones(autocorr_sana_alt, autocorr_inter_alt, autocorr_conv_alt)
+    graficar_autocorrelaciones(autocorr_sana, autocorr_inter, autocorr_conv)
+
+    print("\nAnálisis completado.")
 
 # Ejecutar análisis
 if __name__ == "__main__":

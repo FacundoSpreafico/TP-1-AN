@@ -213,11 +213,36 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
 # 5. Análisis de autocorrelación
 # =============================================
 
-def calcular_autocorrelacion(senal, max_retardo=1000):
+def calcular_autocorrelacion(senal, max_retardo=MAX_RETARDO):
+    n = len(senal)
+
+    # 1. REMOVER LA MEDIA (Error crítico faltante)
+    media = sum(senal) / n
+    senal_cero_media = [x - media for x in senal]
+
+    autocorr = []
+
+    # 2. CORREGIR CÁLCULO DE AUTOCORRELACIÓN
+    for k in range(max_retardo):
+        suma = 0.0
+        # Usamos señal centrada en cero
+        for i in range(n - k):
+            suma += senal_cero_media[i] * senal_cero_media[i + k]
+        autocorr.append(suma)
+
+    # 3. NORMALIZACIÓN CORRECTA (usar varianza en lugar de energía)
+    varianza = sum(x ** 2 for x in senal_cero_media) / n
+    valor_zero = varianza if varianza != 0 else 1e-10
+
+    # 4. EVITAR VALORES IMPOSIBLES (ajustar por longitud - k)
+    return [x / (valor_zero * (n - k)) for k, x in enumerate(autocorr)]
+
+def calcular_autocorrelacion_libreria(senal, max_retardo=MAX_RETARDO):
     """Calcula la autocorrelación normalizada"""
     autocorr = np.correlate(senal, senal, mode='full')
     autocorr = autocorr[len(autocorr)//2:]
     return autocorr[:max_retardo] / autocorr[0]
+
 
 def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_convulsion):
     """Visualización comparativa de autocorrelaciones"""
