@@ -213,11 +213,10 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
 # 5. Análisis de autocorrelación
 # =============================================
 
-def calcular_autocorrelacion(senal, max_retardo=1000):
-    """Calcula la autocorrelación normalizada"""
+def calcular_autocorrelacion(senal):
     autocorr = np.correlate(senal, senal, mode='full')
-    autocorr = autocorr[len(autocorr)//2:]
-    return autocorr[:max_retardo] / autocorr[0]
+    autocorr = autocorr / autocorr[len(autocorr) // 2]
+    return autocorr
 
 def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_convulsion):
     """Visualización comparativa de autocorrelaciones"""
@@ -234,6 +233,33 @@ def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_conv
     plt.legend()
     plt.grid(True)
     plt.show()
+    
+    
+def graficar_autocorrelacion_con_senal_original(senal, autocorrelacion, titulo, fs=FRECUENCIA_MUESTREO):
+        """Grafica la señal original junto con su autocorrelación"""
+        tiempo = np.arange(len(senal)) / fs
+        retardos = np.arange(len(autocorrelacion)) / fs
+
+        fig, axs = plt.subplots(2, 1, figsize=(12, 8))
+
+        # Señal original
+        axs[0].plot(tiempo, senal, color='blue', label='Señal Original')
+        axs[0].set_title(f'{titulo} - Señal Original')
+        axs[0].set_xlabel('Tiempo (s)')
+        axs[0].set_ylabel('Amplitud (μV)')
+        axs[0].legend()
+        axs[0].grid(True)
+
+        # Autocorrelación
+        axs[1].plot(retardos, autocorrelacion, color='orange', label='Autocorrelación')
+        axs[1].set_title(f'{titulo} - Autocorrelación')
+        axs[1].set_xlabel('Retardo (s)')
+        axs[1].set_ylabel('Autocorrelación Normalizada')
+        axs[1].legend()
+        axs[1].grid(True)
+
+        plt.tight_layout()
+        plt.show()
 
 # =============================================
 # Función auxiliar para comparación en tiempo

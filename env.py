@@ -25,5 +25,5 @@ BANDAS_EEG = {
 }
 
 LIMITE_FRECUENCIAS = 30  # Límite superior para gráficos de frecuencia (Hz)
-MAX_RETARDO = 1000       # Máximo retardo para autocorrelación (muestras)
+MAX_RETARDO = 200      # Máximo retardo para autocorrelación (muestras)
 
