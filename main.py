@@ -70,15 +70,24 @@ def analisis_completo_eeg():
 
 
     # 4. Autocorrelación (opcional)
-    print("\nCalculando autocorrelaciones...")
-    autocorr_sana = calcular_autocorrelacion(senal_sana_f)
-    autocorr_inter = calcular_autocorrelacion(senal_interictal_f)
-    autocorr_conv = calcular_autocorrelacion(senal_convulsion_f)
-    graficar_autocorrelaciones(autocorr_sana, autocorr_inter, autocorr_conv)    
-    graficar_autocorrelacion_con_senal_original(senal_sana_f, autocorr_sana, 'Señal Sana')
-    graficar_autocorrelacion_con_senal_original(senal_interictal_f, autocorr_inter, 'Señal Interictal')
-    graficar_autocorrelacion_con_senal_original(senal_convulsion_f, autocorr_conv, 'Señal Convulsión')
-    
+    # print("\nCalculando autocorrelaciones...")
+    # autocorr_sana = calcular_autocorrelacion(senal_sana_f)
+    # autocorr_inter = calcular_autocorrelacion(senal_interictal_f)
+    # autocorr_conv = calcular_autocorrelacion(senal_convulsion_f)
+    # graficar_autocorrelaciones(autocorr_sana, autocorr_inter, autocorr_conv)    
+    # graficar_autocorrelacion_con_senal_original(senal_sana_f, autocorr_sana, 'Señal Sana')
+    # graficar_autocorrelacion_con_senal_original(senal_interictal_f, autocorr_inter, 'Señal Interictal')
+    # graficar_autocorrelacion_con_senal_original(senal_convulsion_f, autocorr_conv, 'Señal Convulsión')
+    lags_sana, autocorr_sana = calcular_autocorrelacion(senal_sana)
+    lags_int, autocorr_interictal = calcular_autocorrelacion(senal_interictal)
+    lags_conv, autocorr_convulsion = calcular_autocorrelacion(senal_convulsion)
+
+# Graficar individual
+    graficar_autocorrelacion_con_senal_original(senal_sana, autocorr_sana, lags_sana, "Paciente Sano")
+    graficar_autocorrelacion_con_senal_original(senal_interictal, autocorr_interictal, lags_int, "Paciente Interictal")
+    graficar_autocorrelacion_con_senal_original(senal_convulsion, autocorr_convulsion, lags_conv, "Paciente Convulsión")
+
+
     print("\nAnálisis completado.")
 
 # Ejecutar análisis

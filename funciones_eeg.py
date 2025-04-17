@@ -214,18 +214,25 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
 # =============================================
 
 def calcular_autocorrelacion(senal):
-    autocorr = np.correlate(senal, senal, mode='full')
-    autocorr = autocorr / autocorr[len(autocorr) // 2]
-    return autocorr
+    n = len(senal)
+    senal_centrada = senal - np.mean(senal)  # Centrar la señal
+    #La función np.mean de NumPy calcula la media aritmética de los valores en el array senal.
+    #La media es el promedio de todos los valores en la señal, lo que representa el "nivel base" o el valor promedio de la señal.
+    autocorr = np.correlate(senal_centrada, senal_centrada, mode='full')
+    autocorr_normalizada = autocorr / autocorr[n - 1]  # Normalizar al valor en retardo 0
+    lags = np.arange(-n + 1, n)  # Retardos desde -(n-1) hasta +(n-1) en muestras
+    return lags, autocorr_normalizada
 
 def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_convulsion):
     """Visualización comparativa de autocorrelaciones"""
-    retardos = np.arange(len(autocorr_sana))
+    retardosSana = np.arange(len(autocorr_sana))
+    retardosInt = np.arange(len(autocorr_interictal))
+    retardosConv = np.arange(len(autocorr_convulsion))
 
     plt.figure(figsize=(12,6))
-    plt.plot(retardos, autocorr_sana, label='Sana')
-    plt.plot(retardos, autocorr_interictal, label='Interictal')
-    plt.plot(retardos, autocorr_convulsion, label='Convulsión')
+    plt.plot(retardosSana, autocorr_sana, label='Sana')
+    plt.plot(retardosInt, autocorr_interictal, label='Interictal')
+    plt.plot(retardosConv, autocorr_convulsion, label='Convulsión')
 
     plt.title('Comparación de Autocorrelaciones')
     plt.xlabel('Retardo (muestras)')
@@ -235,31 +242,29 @@ def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_conv
     plt.show()
     
     
-def graficar_autocorrelacion_con_senal_original(senal, autocorrelacion, titulo, fs=FRECUENCIA_MUESTREO):
-        """Grafica la señal original junto con su autocorrelación"""
-        tiempo = np.arange(len(senal)) / fs
-        retardos = np.arange(len(autocorrelacion)) / fs
+def graficar_autocorrelacion_con_senal_original(senal, autocorrelacion, lags, titulo):
+    """Grafica la señal original junto con su autocorrelación en unidades de muestras"""
+    fig, axs = plt.subplots(2, 1, figsize=(12, 8))
 
-        fig, axs = plt.subplots(2, 1, figsize=(12, 8))
+    # Señal original
+    axs[0].plot(senal, color='blue', label='Señal Original')
+    axs[0].set_title(f'{titulo} - Señal Original')
+    axs[0].set_xlabel('Muestras')
+    axs[0].set_ylabel('Amplitud (μV)')
+    axs[0].legend()
+    axs[0].grid(True)
 
-        # Señal original
-        axs[0].plot(tiempo, senal, color='blue', label='Señal Original')
-        axs[0].set_title(f'{titulo} - Señal Original')
-        axs[0].set_xlabel('Tiempo (s)')
-        axs[0].set_ylabel('Amplitud (μV)')
-        axs[0].legend()
-        axs[0].grid(True)
-
-        # Autocorrelación
-        axs[1].plot(retardos, autocorrelacion, color='orange', label='Autocorrelación')
-        axs[1].set_title(f'{titulo} - Autocorrelación')
-        axs[1].set_xlabel('Retardo (s)')
-        axs[1].set_ylabel('Autocorrelación Normalizada')
-        axs[1].legend()
-        axs[1].grid(True)
-
-        plt.tight_layout()
-        plt.show()
+    # Autocorrelación (centrada en 0)
+    axs[1].plot(lags, autocorrelacion, color='orange', label='Autocorrelación')
+    axs[1].set_title(f'{titulo} - Autocorrelación')
+    axs[1].set_xlabel('Retardo (muestras)')
+    axs[1].set_ylabel('Autocorrelación Normalizada')
+    axs[1].legend()
+    axs[1].grid(True)
+    axs[1].set_xlim(-4500, 4500)  # Ajusta el rango según tus datos
+    
+    plt.tight_layout()
+    plt.show()
 
 # =============================================
 # Función auxiliar para comparación en tiempo
