@@ -153,23 +153,14 @@ def graficar_espectro_frecuencias(xf, yf, titulo, limite_superior=LIMITE_FRECUEN
 # =============================================
 
 def calcular_potencia_bandas(xf, yf):
-    """Calcula la potencia en las bandas típicas de EEG"""
-    bandas = {
-        'Delta (0.5-4 Hz)': (0.5, 4),
-        'Theta (4-8 Hz)': (4, 8),
-        'Alpha (8-13 Hz)': (8, 13),
-        'Beta (13-30 Hz)': (13, 30),
-        'Gamma (30-40 Hz)': (30, 40)
-    }
-    #
-    # return {nombre: np.trapezoid(yf[(xf >= fmin) & (xf <= fmax)], xf[(xf >= fmin) & (xf <= fmax)])
-    #         for nombre, (fmin, fmax) in bandas.items()}
+    """Calcula la potencia relativa en las bandas típicas de EEG"""
+    bandas = BANDAS_EEG
     potencias = {}
     total = np.trapezoid(yf, xf)  # Potencia total
-
     for nombre, (fmin, fmax) in bandas.items():
-        potencia = np.trapezoid(yf[(xf >= fmin) & (xf <= fmax)], xf[(xf >= fmin) & (xf <= fmax)])
-        potencias[nombre] = (potencia / total)
+        mascara = (xf >= fmin) & (xf <= fmax)
+        potencia_abs = np.trapezoid(yf[mascara], xf[mascara])
+        potencias[nombre] = potencia_abs / total  # Normalización
     return potencias
 
 def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potencias_convulsion):
@@ -204,7 +195,7 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
                      ha='center', va='bottom', fontsize=10)
 
     plt.xticks(x, nombres_bandas, rotation=45)
-    plt.ylabel('Potencia espectral (uV)')
+    plt.ylabel('Potencia relativa (%)')
     plt.title('Distribución de potencia por bandas de frecuencia')
     plt.legend()
     plt.tight_layout()
@@ -215,7 +206,8 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
 
 def calcular_autocorrelacion(senal):
     n = len(senal)
-    senal_centrada = senal - np.mean(senal)  # Centrar la señal
+    senal_centrada = senal - np.mean(senal)  
+    #Centrar la señal
     #La función np.mean de NumPy calcula la media aritmética de los valores en el array senal.
     #La media es el promedio de todos los valores en la señal, lo que representa el "nivel base" o el valor promedio de la señal.
     autocorr = np.correlate(senal_centrada, senal_centrada, mode='full')

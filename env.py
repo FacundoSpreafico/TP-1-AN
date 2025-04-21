@@ -3,7 +3,7 @@
 # =============================================
 # Configuración de parámetros de procesamiento
 # =============================================
-FRECUENCIA_CORTE = 20     # Frecuencia de corte para filtro pasa bajos (Hz)
+FRECUENCIA_CORTE = 40     # Frecuencia de corte para filtro pasa bajos (Hz)
 FRECUENCIA_MUESTREO = 173.61   # Frecuencia de muestreo de las señales (Hz)
 
 # =============================================
@@ -21,7 +21,7 @@ BANDAS_EEG = {
     'theta': (4, 8),
     'alpha': (8, 13),
     'beta': (13, 30),
-    'gamma': (30, 40)
+    'gamma': (30, 80)
 }
 
 LIMITE_FRECUENCIAS = 30  # Límite superior para gráficos de frecuencia (Hz)

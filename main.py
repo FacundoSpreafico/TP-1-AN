@@ -30,14 +30,14 @@ def analisis_completo_eeg():
     senal_interictal_f = filtrar_senal(senal_interictal)
     senal_convulsion_f = filtrar_senal(senal_convulsion)
 
-    # Graficar comparación original vs filtrado
-    print("\nComparación señales originales vs filtradas...")
+    # # Graficar comparación original vs filtrado
+    # print("\nComparación señales originales vs filtradas...")
     # graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
     # graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
     # graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
-    # graficar_senal_y_transformada(senal_sana_f, 'Senal Sana filtrada')
-    # graficar_senal_y_transformada(senal_interictal_f, 'Senal Interictal filtrada')
-    # graficar_senal_y_transformada(senal_convulsion_f, 'Senal Convulsion filtrada')
+    #graficar_senal_y_transformada(senal_sana_f, 'Senal Sana filtrada')
+    #graficar_senal_y_transformada(senal_interictal_f, 'Senal Interictal filtrada')
+    #graficar_senal_y_transformada(senal_convulsion_f, 'Senal Convulsion filtrada')
 
     # 2. Análisis espectral
     # print("\nAnalizando distribución espectral...")
@@ -55,17 +55,15 @@ def analisis_completo_eeg():
 
 
 
-    # 3. Potencia por bandas (opcional)
-    # print("\nCalculando potencia por bandas espectrales...")
-    # xf_sana, yf_sana = calcular_espectro_frecuencias(senal_sana_f)
-    # xf_inter, yf_inter = calcular_espectro_frecuencias(senal_interictal_f)
-    # xf_conv, yf_conv = calcular_espectro_frecuencias(senal_convulsion_f)
-    
-    # potencias_sana = calcular_potencia_bandas(xf_sana, yf_sana)
-    # potencias_inter = calcular_potencia_bandas(xf_inter, yf_inter)
-    # potencias_conv = calcular_potencia_bandas(xf_conv, yf_conv)
-
-    # graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
+    # 3. Potencia por bandas
+    print("\nCalculando potencia por bandas espectrales...")
+    xf_sana, yf_sana = calcular_espectro_frecuencias(senal_sana_f)
+    xf_inter, yf_inter = calcular_espectro_frecuencias(senal_interictal_f)
+    xf_conv, yf_conv = calcular_espectro_frecuencias(senal_convulsion_f)
+    potencias_sana = calcular_potencia_bandas(xf_sana, yf_sana)
+    potencias_inter = calcular_potencia_bandas(xf_inter, yf_inter)
+    potencias_conv = calcular_potencia_bandas(xf_conv, yf_conv)
+    graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
 
 
 
@@ -81,12 +79,9 @@ def analisis_completo_eeg():
     lags_sana, autocorr_sana = calcular_autocorrelacion(senal_sana)
     lags_int, autocorr_interictal = calcular_autocorrelacion(senal_interictal)
     lags_conv, autocorr_convulsion = calcular_autocorrelacion(senal_convulsion)
-
-# Graficar individual
-    graficar_autocorrelacion_con_senal_original(senal_sana, autocorr_sana, lags_sana, "Paciente Sano")
-    graficar_autocorrelacion_con_senal_original(senal_interictal, autocorr_interictal, lags_int, "Paciente Interictal")
-    graficar_autocorrelacion_con_senal_original(senal_convulsion, autocorr_convulsion, lags_conv, "Paciente Convulsión")
-
+    # graficar_autocorrelacion_con_senal_original(senal_sana, autocorr_sana, lags_sana, "Paciente Sano")
+    # graficar_autocorrelacion_con_senal_original(senal_interictal, autocorr_interictal, lags_int, "Paciente Interictal")
+    # graficar_autocorrelacion_con_senal_original(senal_convulsion, autocorr_convulsion, lags_conv, "Paciente Convulsión")
 
     print("\nAnálisis completado.")
 
