@@ -15,7 +15,7 @@ from funciones_eeg import (
     graficar_espectro_frecuencias, calcular_potencia_bandas,
     graficar_comparacion_potencias, calcular_autocorrelacion,
     graficar_autocorrelaciones, graficar_senales_tiempo,
-    graficar_autocorrelacion_con_senal_original
+    graficar_senal_original_y_filtrada_con_transformada
 )
 # =============================================
 # Función principal de análisis
@@ -31,13 +31,13 @@ def analisis_completo_eeg():
     senal_convulsion_f = filtrar_senal(senal_convulsion)
 
     # # Graficar comparación original vs filtrado
-    # print("\nComparación señales originales vs filtradas...")
-    # graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
-    # graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
-    # graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
-    #graficar_senal_y_transformada(senal_sana_f, 'Senal Sana filtrada')
-    #graficar_senal_y_transformada(senal_interictal_f, 'Senal Interictal filtrada')
-    #graficar_senal_y_transformada(senal_convulsion_f, 'Senal Convulsion filtrada')
+    print("\nComparación señales originales vs filtradas...")
+    #graficar_comparacion_tiempo(senal_sana, senal_sana_f, 'Señal Sana')
+    #graficar_comparacion_tiempo(senal_interictal, senal_interictal_f, 'Señal Interictal')
+    #graficar_comparacion_tiempo(senal_convulsion, senal_convulsion_f, 'Señal de Convulsión')
+    graficar_senal_original_y_filtrada_con_transformada(senal_sana, senal_sana_f , 'Senal Sana filtrada')
+    graficar_senal_original_y_filtrada_con_transformada(senal_interictal, senal_interictal_f, 'Senal Interictal filtrada')
+    graficar_senal_original_y_filtrada_con_transformada(senal_convulsion, senal_convulsion_f, 'Senal Convulsion filtrada')
 
     # 2. Análisis espectral
     # print("\nAnalizando distribución espectral...")

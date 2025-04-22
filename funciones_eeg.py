@@ -164,30 +164,39 @@ def calcular_potencia_bandas(xf, yf):
     return potencias
 
 def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potencias_convulsion):
-    """Comparación visual de potencias por bandas"""
+    """Comparación visual de potencias por bandas con promedio por estado"""
     nombres_bandas = list(potencias_sana.keys())
     x = np.arange(len(nombres_bandas))
     ancho = 0.25
 
-    # Imprimir valores de potencia
+    # Calcular promedios
+    promedio_sana = sum(potencias_sana.values()) / len(potencias_sana)
+    promedio_interictal = sum(potencias_interictal.values()) / len(potencias_interictal)
+    promedio_convulsion = sum(potencias_convulsion.values()) / len(potencias_convulsion)
+
+    # Imprimir valores de potencia y promedios
     print("\nPotencias por bandas:")
     print("Sana:")
     for banda, potencia in potencias_sana.items():
         print(f"  {banda}: {potencia:.4f}")
-    print("Interictal:")
+    print(f"  **Promedio total**: {promedio_sana:.4f}")  # <-- Nuevo
+
+    print("\nInterictal:")
     for banda, potencia in potencias_interictal.items():
         print(f"  {banda}: {potencia:.4f}")
-    print("Convulsión:")
+    print(f"  **Promedio total**: {promedio_interictal:.4f}")  # <-- Nuevo
+
+    print("\nConvulsión:")
     for banda, potencia in potencias_convulsion.items():
         print(f"  {banda}: {potencia:.4f}")
+    print(f"  **Promedio total**: {promedio_convulsion:.4f}")  # <-- Nuevo
 
-    # Graficar potencias
+    # Graficar potencias (el resto del código se mantiene igual)
     plt.figure(figsize=(12, 6))
     barras_sana = plt.bar(x - ancho, potencias_sana.values(), ancho, label='Sana')
     barras_inter = plt.bar(x, potencias_interictal.values(), ancho, label='Interictal')
     barras_conv = plt.bar(x + ancho, potencias_convulsion.values(), ancho, label='Convulsión')
 
-    # Agregar valores encima de las barras
     for barras in [barras_sana, barras_inter, barras_conv]:
         for barra in barras:
             altura = barra.get_height()
