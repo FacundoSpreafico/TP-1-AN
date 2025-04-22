@@ -68,68 +68,6 @@ def graficar_senal_original_y_filtrada_con_transformada(senal_original, senal_fi
     plt.tight_layout()
     plt.show()
 
-def graficar_senales_tiempo(senal_sana, senal_interictal, senal_convulsion, fs=FRECUENCIA_MUESTREO):
-    """Visualización comparativa de las señales en tiempo"""
-    tiempo = lambda s: np.arange(len(s)) / fs
-
-    fig, axs = plt.subplots(3, 1, figsize=(15,10))
-
-    axs[0].plot(tiempo(senal_sana), senal_sana)
-    axs[0].set_title('Señal Sana (Estado Normal)')
-    axs[0].set_ylabel('Amplitud (μV)')
-
-    axs[1].plot(tiempo(senal_interictal), senal_interictal)
-    axs[1].set_title('Señal Interictal (Entre Crisis)')
-    axs[1].set_ylabel('Amplitud (μV)')
-
-    axs[2].plot(tiempo(senal_convulsion), senal_convulsion)
-    axs[2].set_title('Señal de Convulsión (Crisis Epiléptica)')
-    axs[2].set_xlabel('Tiempo (s)')
-    axs[2].set_ylabel('Amplitud (μV)')
-
-    plt.tight_layout()
-    plt.show()
-
-def analizar_distribucion_bandas(frecuencias, amplitud):
-    """
-    Muestra el porcentaje de contribución de todas las bandas espectrales
-    """
-    caracteristicas = extraer_caracteristicas(frecuencias, amplitud)
-
-    total = caracteristicas['potencia_total']
-    if total == 0:
-        print("La potencia total es cero - no se pueden calcular porcentajes")
-        return
-
-    bandas = {
-        'delta': 'Delta (0.5-4 Hz)',
-        'theta': 'Theta (4-8 Hz)',
-        'alpha': 'Alpha (8-13 Hz)',
-        'beta': 'Beta (13-30 Hz)',
-        'gamma': 'Gamma (30-40 Hz)'
-    }
-
-    porcentajes = []
-    for banda in bandas:
-        porcentaje = (caracteristicas[banda] / total) * 100
-        porcentajes.append((bandas[banda], porcentaje))
-
-    porcentajes.sort(key=lambda x: x[1], reverse=True)
-
-    print("\nDistribución de potencia por bandas:")
-    for nombre, porcentaje in porcentajes:
-        print(f"- {nombre}: {porcentaje:.2f}%")
-
-    print("\nRatios importantes:")
-    print(f"Alpha/Theta: {caracteristicas['ratio_alpha_theta']:.2f}")
-    print(f"Beta/Alpha: {caracteristicas['ratio_beta_alpha']:.2f}")
-    print(f"Gamma/Alpha: {caracteristicas['ratio_gamma_alpha']:.2f}")
-
-
-# =============================================
-# . Análisis en el dominio de la frecuencia
-# =============================================
-
 def calcular_espectro_frecuencias(senal, fs=FRECUENCIA_MUESTREO):
     """Calcula la transformada de Fourier de la señal"""
     n = len(senal)
@@ -209,9 +147,6 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
     plt.legend()
     plt.tight_layout()
     plt.show()
-# =============================================
-# 5. Análisis de autocorrelación
-# =============================================
 
 def calcular_autocorrelacion(senal):
     n = len(senal)
@@ -223,25 +158,6 @@ def calcular_autocorrelacion(senal):
     autocorr_normalizada = autocorr / autocorr[n - 1]  # Normalizar al valor en retardo 0
     lags = np.arange(-n + 1, n)  # Retardos desde -(n-1) hasta +(n-1) en muestras
     return lags, autocorr_normalizada
-
-def graficar_autocorrelaciones(autocorr_sana, autocorr_interictal, autocorr_convulsion):
-    """Visualización comparativa de autocorrelaciones"""
-    retardosSana = np.arange(len(autocorr_sana))
-    retardosInt = np.arange(len(autocorr_interictal))
-    retardosConv = np.arange(len(autocorr_convulsion))
-
-    plt.figure(figsize=(12,6))
-    plt.plot(retardosSana, autocorr_sana, label='Sana')
-    plt.plot(retardosInt, autocorr_interictal, label='Interictal')
-    plt.plot(retardosConv, autocorr_convulsion, label='Convulsión')
-
-    plt.title('Comparación de Autocorrelaciones')
-    plt.xlabel('Retardo (muestras)')
-    plt.ylabel('Autocorrelación Normalizada')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
     
 def graficar_autocorrelacion_con_senal_original(senal, autocorrelacion, lags, titulo):
     """Grafica la señal original junto con su autocorrelación en unidades de muestras"""
@@ -265,23 +181,4 @@ def graficar_autocorrelacion_con_senal_original(senal, autocorrelacion, lags, ti
     axs[1].set_xlim(-4500, 4500)  # Ajusta el rango según tus datos
     
     plt.tight_layout()
-    plt.show()
-
-# =============================================
-# Función auxiliar para comparación en tiempo
-# =============================================
-
-def graficar_comparacion_tiempo(senal_original, senal_filtrada, titulo, fs=FRECUENCIA_MUESTREO):
-    """Grafica señal original y filtrada superpuestas"""
-    tiempo = np.arange(len(senal_original)) / fs
-
-    plt.figure(figsize=(15, 5))
-    plt.plot(tiempo, senal_original, alpha=0.8, label='Original', linewidth=1.5, color='darkblue')
-    plt.plot(tiempo, senal_filtrada, label='Filtrada', linewidth=1.2, color='orange')
-
-    plt.title(f'Comparación: {titulo}')
-    plt.xlabel('Tiempo (s)')
-    plt.ylabel('Amplitud (μV)')
-    plt.legend()
-    plt.grid(True)
     plt.show()
