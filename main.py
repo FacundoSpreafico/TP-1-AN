@@ -10,12 +10,13 @@ from env import VISUAL_CONFIG
 plt.rcParams.update(VISUAL_CONFIG)
 
 from funciones_eeg import (
-    cargar_senales, filtrar_senal, graficar_comparacion_tiempo,
+    cargar_senales, filtrar_senal, graficar_autocorrelacion_con_senal_original, graficar_comparacion_tiempo,
     analizar_distribucion_bandas, calcular_espectro_frecuencias,
     graficar_espectro_frecuencias, calcular_potencia_bandas,
     graficar_comparacion_potencias, calcular_autocorrelacion,
     graficar_autocorrelaciones, graficar_senales_tiempo,
-    graficar_senal_original_y_filtrada_con_transformada
+    graficar_senal_original_y_filtrada_con_transformada,
+    graficar_autocorrelacion_con_senal_original
 )
 # =============================================
 # Función principal de análisis
@@ -79,9 +80,9 @@ def analisis_completo_eeg():
     lags_sana, autocorr_sana = calcular_autocorrelacion(senal_sana)
     lags_int, autocorr_interictal = calcular_autocorrelacion(senal_interictal)
     lags_conv, autocorr_convulsion = calcular_autocorrelacion(senal_convulsion)
-    # graficar_autocorrelacion_con_senal_original(senal_sana, autocorr_sana, lags_sana, "Paciente Sano")
-    # graficar_autocorrelacion_con_senal_original(senal_interictal, autocorr_interictal, lags_int, "Paciente Interictal")
-    # graficar_autocorrelacion_con_senal_original(senal_convulsion, autocorr_convulsion, lags_conv, "Paciente Convulsión")
+    graficar_autocorrelacion_con_senal_original(senal_sana, autocorr_sana, lags_sana, "Paciente Sano")
+    graficar_autocorrelacion_con_senal_original(senal_interictal, autocorr_interictal, lags_int, "Paciente Interictal")
+    graficar_autocorrelacion_con_senal_original(senal_convulsion, autocorr_convulsion, lags_conv, "Paciente Convulsión")
 
     print("\nAnálisis completado.")
 
