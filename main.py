@@ -1,10 +1,11 @@
 # main.py
 
 # Importación de bibliotecas
+from matplotlib.mlab import psd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
-from env import VISUAL_CONFIG
+from env import FRECUENCIA_MUESTREO, VISUAL_CONFIG
 
 # Aplicar configuración visual
 plt.rcParams.update(VISUAL_CONFIG)
@@ -14,6 +15,7 @@ from funciones_eeg import (
     calcular_espectro_frecuencias, calcular_potencia_bandas,
     graficar_comparacion_potencias, calcular_autocorrelacion,
     graficar_senal_original_y_filtrada_con_transformada,
+    calcular_potencia_espectral
 )
 # =============================================
 # Función principal de análisis
@@ -35,14 +37,24 @@ def analisis_completo_eeg():
     graficar_senal_original_y_filtrada_con_transformada(senal_convulsion, senal_convulsion_f, 'Senal Convulsion filtrada')
 
     # 3. Potencia por bandas
-    print("\nCalculando potencia por bandas espectrales...")
-    xf_sana, yf_sana = calcular_espectro_frecuencias(senal_sana_f)
-    xf_inter, yf_inter = calcular_espectro_frecuencias(senal_interictal_f)
-    xf_conv, yf_conv = calcular_espectro_frecuencias(senal_convulsion_f)
-    potencias_sana = calcular_potencia_bandas(xf_sana, yf_sana)
-    potencias_inter = calcular_potencia_bandas(xf_inter, yf_inter)
-    potencias_conv = calcular_potencia_bandas(xf_conv, yf_conv)
+    # Paso 1: obtener frecuencias y espectro
+    xf_sana, espectro_sana= calcular_espectro_frecuencias(senal_sana_f, fs= FRECUENCIA_MUESTREO)
+    xf_inter, espectro_inter = calcular_espectro_frecuencias(senal_interictal_f, fs= FRECUENCIA_MUESTREO)
+    xf_conv, espectro_conv = calcular_espectro_frecuencias(senal_convulsion_f, fs= FRECUENCIA_MUESTREO)
+    
+    # Paso 2: calcular la potencia espectral
+    psd_sana = calcular_potencia_espectral(espectro_sana, len(senal_sana_f), fs= FRECUENCIA_MUESTREO)
+    psd_inter = calcular_potencia_espectral(espectro_inter, len(senal_interictal_f), fs= FRECUENCIA_MUESTREO)
+    psd_conv = calcular_potencia_espectral(espectro_conv, len(senal_convulsion_f), fs= FRECUENCIA_MUESTREO)
+    
+    # Paso 3: calcular la potencia por bandas
+    potencias_sana = calcular_potencia_bandas(xf_sana, psd_sana)
+    potencias_inter = calcular_potencia_bandas(xf_inter, psd_inter)
+    potencias_conv = calcular_potencia_bandas(xf_conv, psd_conv)
     graficar_comparacion_potencias(potencias_sana, potencias_inter, potencias_conv)
+
+
+
 
     # 4. Autocorrelacion
     lags_sana, autocorr_sana = calcular_autocorrelacion(senal_sana)

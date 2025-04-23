@@ -10,9 +10,7 @@ from ComparacionSignal import extraer_caracteristicas
 from env import (
     FRECUENCIA_CORTE,
     FRECUENCIA_MUESTREO,
-    BANDAS_EEG,
-    LIMITE_FRECUENCIAS,
-    MAX_RETARDO
+    BANDAS_EEG
 )
 # =============================================
 # 0. Carga de señales EEG
@@ -69,13 +67,24 @@ def graficar_senal_original_y_filtrada_con_transformada(senal_original, senal_fi
     plt.show()
 
 def calcular_espectro_frecuencias(senal, fs=FRECUENCIA_MUESTREO):
-    """Calcula la transformada de Fourier de la señal"""
+    """
+    Calcula la Transformada de Fourier Discreta de una señal.
+    Retorna las frecuencias y la FFT.
+    """
     n = len(senal)
     yf = fft(senal)
-    xf = fftfreq(n, 1/fs)[:n//2]
-    return xf, 2/n * np.abs(yf[0:n//2])
+    xf = fftfreq(n, 1/fs)[:n//2]          # Frecuencias positivas
+    espectro = np.abs(yf[:n//2])          # Parte positiva de la FFT //REVISAR EL ABS..
+    return xf, espectro
 
-def graficar_espectro_frecuencias(xf, yf, titulo, limite_superior=LIMITE_FRECUENCIAS):
+def calcular_potencia_espectral(espectro, n, fs=FRECUENCIA_MUESTREO):
+    """
+    Calcula la densidad espectral de potencia (PSD) a partir de la FFT.
+    """
+    psd = (2 / (fs * n)) * espectro**2 # Esto es equivalente a la formula de PSD = |(X(f)|^2       //REVISAR EL ABS..
+    return psd
+
+def graficar_espectro_frecuencias(xf, yf, titulo, limite_superior=40):
     """Visualización del espectro de frecuencias"""
     plt.figure()
     plt.plot(xf, yf)
@@ -95,9 +104,10 @@ def calcular_potencia_bandas(xf, yf):
     bandas = BANDAS_EEG
     potencias = {}
     total = np.trapezoid(yf, xf)  # Potencia total
+    print("Total de potencia:", total)
     for nombre, (fmin, fmax) in bandas.items():
         mascara = (xf >= fmin) & (xf <= fmax)
-        potencia_abs = np.trapezoid(yf[mascara], xf[mascara])
+        potencia_abs = max(0, np.trapezoid(yf[mascara], xf[mascara]))
         potencias[nombre] = potencia_abs / total  # Normalización
     return potencias
 
@@ -107,29 +117,22 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
     x = np.arange(len(nombres_bandas))
     ancho = 0.25
 
-    # Calcular promedios
-    promedio_sana = sum(potencias_sana.values()) / len(potencias_sana)
-    promedio_interictal = sum(potencias_interictal.values()) / len(potencias_interictal)
-    promedio_convulsion = sum(potencias_convulsion.values()) / len(potencias_convulsion)
-
-    # Imprimir valores de potencia y promedios
+    # Imprimir potencias por banda y calcular promedios
     print("\nPotencias por bandas:")
-    print("Sana:")
-    for banda, potencia in potencias_sana.items():
-        print(f"  {banda}: {potencia:.4f}")
-    print(f"  **Promedio total**: {promedio_sana:.4f}")  # <-- Nuevo
 
-    print("\nInterictal:")
-    for banda, potencia in potencias_interictal.items():
-        print(f"  {banda}: {potencia:.4f}")
-    print(f"  **Promedio total**: {promedio_interictal:.4f}")  # <-- Nuevo
+    def imprimir(nombre, potencias):
+        promedio = sum(potencias.values()) / len(potencias)
+        print(f"\n{nombre}:")
+        for banda, potencia in potencias.items():
+            print(f"  {banda}: {potencia:.4f}")
+        print(f"  **Promedio total**: {promedio:.4f}")
+        return promedio
 
-    print("\nConvulsión:")
-    for banda, potencia in potencias_convulsion.items():
-        print(f"  {banda}: {potencia:.4f}")
-    print(f"  **Promedio total**: {promedio_convulsion:.4f}")  # <-- Nuevo
+    promedio_sana = imprimir("Sana", potencias_sana)
+    promedio_interictal = imprimir("Interictal", potencias_interictal)
+    promedio_convulsion = imprimir("Convulsión", potencias_convulsion)
 
-    # Graficar potencias (el resto del código se mantiene igual)
+    # Graficar
     plt.figure(figsize=(12, 6))
     barras_sana = plt.bar(x - ancho, potencias_sana.values(), ancho, label='Sana')
     barras_inter = plt.bar(x, potencias_interictal.values(), ancho, label='Interictal')
@@ -142,8 +145,8 @@ def graficar_comparacion_potencias(potencias_sana, potencias_interictal, potenci
                      ha='center', va='bottom', fontsize=10)
 
     plt.xticks(x, nombres_bandas, rotation=45)
-    plt.ylabel('Potencia relativa (%)')
-    plt.title('Distribución de potencia por bandas de frecuencia')
+    plt.ylabel('Potencia relativa')
+    plt.title('Distribución de potencia por bandas de frecuencia (EEG)')
     plt.legend()
     plt.tight_layout()
     plt.show()
